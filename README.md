@@ -17,6 +17,7 @@ Authenticate using `tsh`
 `tctl bots add --roles example-issuer example-bot`
 
 Edit `config.yaml` with your proxy and the token from the above `bots add`
+
 `tbot start -c config.yaml`
 
 
