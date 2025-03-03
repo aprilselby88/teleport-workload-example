@@ -1,0 +1,14 @@
+kind: role
+version: v6
+metadata:
+  name: example-issuer
+spec:
+  allow:
+    workload_identity_labels:
+      example: ["workload-example"]
+    rules:
+    - resources:
+      - workload_identity
+      verbs:
+      - list
+      - read

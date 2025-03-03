@@ -1,0 +1,19 @@
+kind: workload_identity
+version: v1
+metadata:
+  name: server-id
+  labels:
+    example: workload-example
+spec:
+  spiffe:
+    id: /svc/server
+---
+kind: workload_identity
+version: v1
+metadata:
+  name: client-id
+  labels:
+    example: workload-example
+spec:
+  spiffe:
+    id: /svc/client
