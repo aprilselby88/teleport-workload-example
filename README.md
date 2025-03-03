@@ -1,27 +1,29 @@
 ## Teleport Workload Identity Example Replaces SPIRE
 
+### Initialize Teleport environment
+
 `git clone pfcurtis/teleport-workload-example-python`
 
 `cd teleport-worload-example-python`
 
 Authenticate using `tsh`
 
-tctl bots rm example-bot
+`tctl bots rm example-bot`
 
-tctl create -f workload-identity.yaml
+`tctl create -f workload-identity.yaml`
 
-tctl create -f workload-identity-issuer-role.yaml
+`tctl create -f workload-identity-issuer-role.yaml`
 
-tctl bots add --roles example-issuer example-bot
+`tctl bots add --roles example-issuer example-bot`
 
 Edit `config.yaml` with your proxy and the token from the above `bots add`
-tbot start -c config.yaml
+`tbot start -c config.yaml`
 
 
-Initialize Python environment
+### Initialize Python environment
 
-python3 -m venv env
-pip install -r requirements.txt
+`python3 -m venv env`
+`pip install -r requirements.txt`
 
-export SPIFFE_ENDPOINT_SOCKET=unix:///tmp/tbot-user/workload.sock 
+`export SPIFFE_ENDPOINT_SOCKET=unix:///tmp/tbot-user/workload.sock`
 
