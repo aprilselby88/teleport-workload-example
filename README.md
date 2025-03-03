@@ -1,9 +1,8 @@
-#!/bin/bash
+## Teleport Workload Identity Example Replaces SPIRE
 
+`git clone pfcurtis/teleport-workload-example-python`
 
-git clone <xxx>/teleport-worload-example-python
-
-cd teleport-worload-example-python
+`cd teleport-worload-example-python`
 
 Authenticate using `tsh`
 
