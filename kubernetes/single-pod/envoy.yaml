@@ -1,0 +1,44 @@
+
+# https://github.com/spiffe/spire-tutorials/blob/main/k8s/envoy-x509/k8s/frontend/config/envoy.yaml
+# https://medium.com/@viggnah/how-to-deploy-envoy-as-a-sidecar-proxy-on-kubernetes-c3a3ad3935ee
+
+ clusters:
+      - name: spire_agent
+        connect_timeout: 0.25s
+        http2_protocol_options: {}
+        load_assignment:	
+          cluster_name: spire_agent
+          endpoints:	
+          - lb_endpoints:	
+            - endpoint:	
+                address:	
+                  pipe:	
+                    path: /tmp/spiffe-workload-api/spiffe.socket
+ 
+transport_socket:
+            name: envoy.transport_sockets.tls
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+              common_tls_context:
+                tls_certificate_sds_secret_configs:
+                - name: "spiffe://spiffe-demo.internal/ns/spiffe-customer/sa/spiffe-demo-httpbackend"
+                  sds_config:
+                    resource_api_version: V3
+                    api_config_source:
+                      api_type: GRPC
+                      transport_api_version: V3
+                      grpc_services:
+                        envoy_grpc:
+                          cluster_name: spire_agent
+
+ transport_socket:
+            name: envoy.transport_sockets.tls
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+                combined_validation_context:
+                  # validate the SPIFFE ID of incoming clients (optionally)
+                  default_validation_context:
+                    match_typed_subject_alt_names:
+                    - san_type: URI
+                      matcher:
+                        exact: "spiffe://spiffe-demo.internal/ns/spiffe-demo/sa/spiffe-demo-customer"

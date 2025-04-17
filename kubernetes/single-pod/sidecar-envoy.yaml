@@ -1,0 +1,25 @@
+static_resources:
+  listeners:
+  # ingress
+  - name: mainapp_sidecar_listener
+    address:
+      socket_address:
+        # Entrypoint for service through Envoy
+        address: 0.0.0.0
+        port_value: 5000
+
+
+  clusters:
+  - name: mainapp_service
+    type: STRICT_DNS
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: mainapp_service
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                # reroute to service container in the same K8s deployment
+                address: 127.0.0.1
+                port_value: 8000
