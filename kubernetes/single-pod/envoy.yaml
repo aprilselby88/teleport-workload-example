@@ -2,43 +2,67 @@
 # https://github.com/spiffe/spire-tutorials/blob/main/k8s/envoy-x509/k8s/frontend/config/envoy.yaml
 # https://medium.com/@viggnah/how-to-deploy-envoy-as-a-sidecar-proxy-on-kubernetes-c3a3ad3935ee
 
- clusters:
-      - name: spire_agent
-        connect_timeout: 0.25s
-        http2_protocol_options: {}
-        load_assignment:	
-          cluster_name: spire_agent
-          endpoints:	
-          - lb_endpoints:	
-            - endpoint:	
-                address:	
-                  pipe:	
-                    path: /tmp/spiffe-workload-api/spiffe.socket
- 
-transport_socket:
+static_resources:
+  listeners:
+    - name: mainapp_sidecar_listener
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 8000
+      filter_chains:
+        - filters:
+            - name: envoy.filters.network.tcp_proxy
+              typed_config:
+                '@type': >-
+                  type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
+                stat_prefix: destination
+                cluster: mainapp_service
+          transport_socket:
             name: envoy.transport_sockets.tls
             typed_config:
-              "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+              '@type': >-
+                type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
               common_tls_context:
                 tls_certificate_sds_secret_configs:
-                - name: "spiffe://spiffe-demo.internal/ns/spiffe-customer/sa/spiffe-demo-httpbackend"
-                  sds_config:
-                    resource_api_version: V3
-                    api_config_source:
-                      api_type: GRPC
-                      transport_api_version: V3
-                      grpc_services:
-                        envoy_grpc:
-                          cluster_name: spire_agent
-
- transport_socket:
-            name: envoy.transport_sockets.tls
-            typed_config:
-              "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+                  - name: 'spiffe://paulc-demo.teleport.sh/svc/server'
+                    sds_config:
+                      resource_api_version: V3
+                      api_config_source:
+                        api_type: gRPC
+                        transport_api_version: V3
+                        grpc_services:
+                          envoy_grpc:
+                            cluster_name: tbot
                 combined_validation_context:
-                  # validate the SPIFFE ID of incoming clients (optionally)
                   default_validation_context:
                     match_typed_subject_alt_names:
-                    - san_type: URI
-                      matcher:
-                        exact: "spiffe://spiffe-demo.internal/ns/spiffe-demo/sa/spiffe-demo-customer"
+                      - san_type: URI
+                        matcher:
+                          exact: 'spiffe://paulc-demo.teleport.sh/svc/client'
+                  validation_context_sds_secret_config:
+                    name: 'spiffe://paulc-demo.teleport.sh'
+                    sds_config:
+                      resource_api_version: V3
+                      api_config_source:
+                        api_type: gRPC
+                        transport_api_version: V3
+                        grpc_services:
+                          envoy_grpc:
+                            cluster_name: tbot
+                tls_params:
+                  ecdh_curves:
+                    - 'X25519:P-256:P-521:P-384'
+  clusters:
+    - name: mainapp_service
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: mainapp_service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: 127.0.0.1
+                      port_value: 5000
+
