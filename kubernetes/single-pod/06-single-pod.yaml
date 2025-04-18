@@ -37,6 +37,13 @@ spec:
       containers:
         - name: envoy
           image: bitnami/envoy:latest
+          args: 
+            - -c
+            - /opt/bitnami/envoy/conf/envoy.yaml
+            - --service-cluster
+            - 'front-envoy'
+            - --service-node
+            - 'front-envoy'
           volumeMounts:
           - mountPath: /opt/bitnami/envoy/conf
             name: envoy-config

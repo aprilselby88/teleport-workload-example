@@ -8,12 +8,12 @@ logger = logging.getLogger("spiffe-client")
 logger.setLevel(logging.DEBUG)
 logging.basicConfig(format="%(name)s[%(lineno)d] - %(message)s", stream=sys.stdout)
 
-server_svid = "spiffe://paulc-trial.teleport.sh/svc/server"
+server_svid = "spiffe://paulc-demo.teleport.sh/svc/server"
 
 if len(sys.argv) == 2:
     this_spiffe_id = sys.argv[1]
 else:
-    this_spiffe_id = "spiffe://paulc-trial.teleport.sh/svc/client"
+    this_spiffe_id = "spiffe://paulc-demo.teleport.sh/svc/client"
 
 """
 This function returns the SVID for this client. The WorkloadAPI (and tbot) can return more than one
@@ -32,7 +32,7 @@ x509_source = X509Source(svid_picker=client_svid)
 
 try:
     conn = dial(
-        "localhost:8443",
+        "localhost:8000",
         x509_source,
         authorize_fn=authorize_id(server_svid),
     )
@@ -43,7 +43,7 @@ except Exception as e:
 logger.info(f"Connecting with {x509_source.svid.spiffe_id}")
 
 try:
-    conn.write(b"This is the message.")
+    conn.write(b"GET / HTTP/1.0\n\n")
     data = conn.recv(1024)
     logger.info(f"Received: {data.decode('utf-8')}")
     conn.close()
