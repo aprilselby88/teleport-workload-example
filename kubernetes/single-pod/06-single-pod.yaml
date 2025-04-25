@@ -54,11 +54,15 @@ spec:
             name: envoy-port
 
         - name: simple-web-server
+          imagePullPolicy: Always
+#         image: traefik/whoami
           image: pfcurtis/simple-web-server:0.1.0
           env:
           - name: WEB_SERVER_BIND_ADDRESS
             value: "127.0.0.1"
           - name: WEB_SERVER_LISTEN_PORT
+            value: "5000"
+          - name: WHOAMI_PORT_NUMBER
             value: "5000"
           ports:
           - containerPort: 5000
