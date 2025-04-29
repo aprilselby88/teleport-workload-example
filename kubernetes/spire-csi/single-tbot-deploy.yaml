@@ -1,0 +1,123 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: single-pod-example
+  namespace: web-server
+spec:
+  selector:
+    matchLabels:
+      app: teleport-example
+  template:
+    metadata:
+      labels:
+        app: teleport-example
+    spec:
+      volumes:
+      volumes:
+      - name: envoy-config
+        configMap:
+          name: envoy-config
+      - name: config
+        configMap:
+          name: tbot-config
+      - emptyDir: {}
+        name: spiffe-workload-api
+      - name: join-sa-token
+        projected:
+          sources:
+            - serviceAccountToken:
+                path: join-sa-token
+                # 600 seconds is the minimum that Kubernetes supports. We
+                # recommend this value is used.
+                expirationSeconds: 600
+                # `example.teleport.sh` must be replaced with the name of
+                # your Teleport cluster.
+                audience: paulc-demo.teleport.sh
+
+      containers:
+        - name: envoy
+          image: bitnami/envoy:latest
+          args: 
+            - -c
+            - /opt/bitnami/envoy/conf/envoy.yaml
+            - --service-cluster
+            - 'front-envoy'
+            - --service-node
+            - 'front-envoy'
+          volumeMounts:
+          - mountPath: /opt/bitnami/envoy/conf
+            name: envoy-config
+          - mountPath: /tmp/spiffe-workload-api
+            name: spiffe-workload-api
+          ports:
+          - containerPort: 8000
+            name: envoy-port
+
+        - name: simple-web-server
+          imagePullPolicy: Always
+#         image: traefik/whoami
+          image: pfcurtis/simple-web-server:0.1.0
+          env:
+          - name: WEB_SERVER_BIND_ADDRESS
+            value: "127.0.0.1"
+          - name: WEB_SERVER_LISTEN_PORT
+            value: "5000"
+          - name: WHOAMI_PORT_NUMBER
+            value: "5000"
+          ports:
+          - containerPort: 5000
+            name: web-server-port
+
+          volumeMounts:
+          - mountPath: /tmp/spiffe-workload-api
+            name: spiffe-workload-api
+        - name: tbot
+          image: public.ecr.aws/gravitational/tbot-distroless:17.4.4
+          args:
+            - start
+            - -c
+            - /config/tbot.yaml
+          env:
+            # POD_NAMESPACE is required for the kubernetes_secret` destination
+            # type to work correctly.
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            # KUBERNETES_TOKEN_PATH specifies the path to the service account
+            # JWT to use for joining.
+            # This path is based on the configuration of the volume and
+            # volumeMount.
+            - name: KUBERNETES_TOKEN_PATH
+              value: /var/run/secrets/tokens/join-sa-token
+            # TELEPORT_ANONYMOUS_TELEMETRY enables the submission of anonymous
+            # usage telemetry.  This helps us shape the future development of
+            # `tbot`. You can disable this by omitting this.
+            - name: TELEPORT_ANONYMOUS_TELEMETRY
+              value: "1"
+          volumeMounts:
+            - mountPath: /config
+              name: config
+            - mountPath: /var/run/secrets/tokens
+              name: join-sa-token
+            - mountPath: /tmp/spiffe-workload-api
+              name: spiffe-workload-api
+
+      serviceAccountName: tbot
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-server
+  namespace: web-server
+  labels:
+    app: teleport-example
+spec:
+  type: NodePort
+  ports:
+  - name: web-server
+    port: 8000
+    targetPort: 8000
+    protocol: TCP
+  selector:
+    app: teleport-example

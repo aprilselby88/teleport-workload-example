@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: tbot
+  namespace: tbot
+  labels:
+    app: tbot
+spec:
+  selector:
+    matchLabels:
+      app: tbot
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      namespace: tbot
+      labels:
+        app: tbot
+
+    spec:
+      serviceAccountName: tbot
+      hostPID: true
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+
+      volumes:
+      - name: spiffe-workload-api
+        hostPath:
+          path: /run/spire/agent-sockets
+          type: DirectoryOrCreate
+      - name: config
+        configMap:
+          name: tbot-config
+      - name: join-sa-token
+        projected:
+          sources:
+            - serviceAccountToken:
+                path: join-sa-token
+                # 600 seconds is the minimum that Kubernetes supports. We
+                # recommend this value is used.
+                expirationSeconds: 600
+                # `example.teleport.sh` must be replaced with the name of
+                # your Teleport cluster.
+                audience: paulc-demo.teleport.sh
+
+      containers:
+        - name: tbot
+          image: public.ecr.aws/gravitational/tbot-distroless:17.4.4
+          args:
+            - start
+            - -c
+            - /config/tbot.yaml
+          env:
+            # POD_NAMESPACE is required for the kubernetes_secret` destination
+            # type to work correctly.
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            # KUBERNETES_TOKEN_PATH specifies the path to the service account
+            # JWT to use for joining.
+            # This path is based on the configuration of the volume and
+            # volumeMount.
+            - name: KUBERNETES_TOKEN_PATH
+              value: /var/run/secrets/tokens/join-sa-token
+            # TELEPORT_ANONYMOUS_TELEMETRY enables the submission of anonymous
+            # usage telemetry.  This helps us shape the future development of
+            # `tbot`. You can disable this by omitting this.
+            - name: TELEPORT_ANONYMOUS_TELEMETRY
+              value: "1"
+          volumeMounts:
+            - mountPath: /config
+              name: config
+            - mountPath: /var/run/secrets/tokens
+              name: join-sa-token
+            - mountPath: /tmp/spiffe-workload-api
+              name: spiffe-workload-api
+
+

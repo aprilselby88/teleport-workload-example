@@ -1,0 +1,79 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: csi-deploy-example
+  namespace: web-server
+spec:
+  selector:
+    matchLabels:
+      app: teleport-example
+  template:
+    metadata:
+      labels:
+        app: teleport-example
+    spec:
+      volumes:
+      volumes:
+      - name: envoy-config
+        configMap:
+          name: envoy-config
+      - name: spiffe-workload-api
+        hostPath:
+          path: /run/spire/agent-sockets
+          type: DirectoryOrCreate
+
+      containers:
+        - name: envoy
+          image: bitnami/envoy:latest
+          args: 
+            - -c
+            - /opt/bitnami/envoy/conf/envoy.yaml
+            - --service-cluster
+            - 'front-envoy'
+            - --service-node
+            - 'front-envoy'
+          volumeMounts:
+          - mountPath: /opt/bitnami/envoy/conf
+            name: envoy-config
+          - mountPath: /tmp/spiffe-workload-api
+            name: spiffe-workload-api
+          ports:
+          - containerPort: 8000
+            name: envoy-port
+
+        - name: simple-web-server
+          imagePullPolicy: Always
+#         image: traefik/whoami
+          image: pfcurtis/simple-web-server:0.1.0
+          env:
+          - name: WEB_SERVER_BIND_ADDRESS
+            value: "127.0.0.1"
+          - name: WEB_SERVER_LISTEN_PORT
+            value: "5000"
+          - name: WHOAMI_PORT_NUMBER
+            value: "5000"
+          ports:
+          - containerPort: 5000
+            name: web-server-port
+
+          volumeMounts:
+            - mountPath: /tmp/spiffe-workload-api
+              name: spiffe-workload-api
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-server
+  namespace: web-server
+  labels:
+    app: teleport-example
+spec:
+  type: NodePort
+  ports:
+  - name: web-server
+    port: 8000
+    targetPort: 8000
+    protocol: TCP
+  selector:
+    app: teleport-example
