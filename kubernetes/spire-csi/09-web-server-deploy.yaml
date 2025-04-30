@@ -1,0 +1,57 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: csi-deploy-example
+  namespace: web-server
+spec:
+  selector:
+    matchLabels:
+      app: csi-deploy-example
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: csi-deploy-example
+    spec:
+      volumes:
+      - name: spiffe-workload-api
+        hostPath:
+          path: /run/spire/agent-sockets
+          type: DirectoryOrCreate
+
+      containers:
+        - name: simple-web-server
+          imagePullPolicy: Always
+#         image: traefik/whoami
+          image: pfcurtis/simple-web-server:0.1.0
+          env:
+#         - name: WEB_SERVER_BIND_ADDRESS
+#           value: "127.0.0.1"
+          - name: WEB_SERVER_LISTEN_PORT
+            value: "5000"
+          - name: WHOAMI_PORT_NUMBER
+            value: "5000"
+          ports:
+          - containerPort: 5000
+            name: web-server-port
+
+          volumeMounts:
+            - mountPath: /tmp/spiffe-workload-api
+              name: spiffe-workload-api
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: csi-web-server
+  namespace: web-server
+  labels:
+    app: csi-deploy-example
+spec:
+  ports:
+  - name: http
+    port: 5000
+    targetPort: 5000
+    protocol: TCP
+  selector:
+    app: csi-deploy-example

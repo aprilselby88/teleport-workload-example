@@ -1,0 +1,60 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: web-server-envoy
+  namespace: web-server
+spec:
+  selector:
+    matchLabels:
+      app: teleport-app-envoy
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: teleport-app-envoy
+    spec:
+      volumes:
+      - name: envoy-config
+        configMap:
+          name: envoy-config
+      - name: spiffe-workload-api
+        hostPath:
+          path: /run/spire/agent-sockets
+          type: DirectoryOrCreate
+
+      containers:
+        - name: envoy
+          image: bitnami/envoy:latest
+          args: 
+            - -c
+            - /opt/bitnami/envoy/conf/envoy.yaml
+            - --service-cluster
+            - 'front-envoy'
+            - --service-node
+            - 'front-envoy'
+          ports:
+          - containerPort: 8000
+            name: envoy-port
+
+          volumeMounts:
+            - mountPath: /tmp/spiffe-workload-api
+              name: spiffe-workload-api
+            - mountPath: /opt/bitnami/envoy/conf
+              name: envoy-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-server-proxy
+  namespace: web-server
+  labels:
+    app: teleport-app-envoy
+spec:
+  ports:
+  - name: envoy
+    port: 8000
+    targetPort: 8000
+    protocol: TCP
+  selector:
+    app: teleport-app-envoy
+

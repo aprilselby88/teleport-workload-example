@@ -2,7 +2,7 @@
 version: v2
 proxy_server: paulc-demo.teleport.sh:443
 onboarding:
-  token: 28b8118f26dad4baa762c46b84ae9dc9
+  token: f32ff0972f80fd032cf8e2f20251ed6f
   join_method: token
 storage:
   type: directory

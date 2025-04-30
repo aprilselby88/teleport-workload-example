@@ -71,7 +71,7 @@ data:
                 address:
                   socket_address:
                     # reroute to service container in the same K8s deployment
-                    address: 127.0.0.1
+                    address: csi-web-server
                     port_value: 5000
       - name: tbot
         connect_timeout: 0.25s
