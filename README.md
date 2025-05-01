@@ -29,12 +29,11 @@ Each instance of `tbot` providing a **WorkloadAPI** can then be assigned a role 
 
 ### Single Pod & Sidecar Deployment in Kubernetes
 
-https://github.com/pfcurtis/teleport-workload-example/kubernetes/single-pod
+https://github.com/pfcurtis/teleport-workload-example/tree/main/kubernetes/single-pod
 
 ### WorkloadAPI "Cluster Wide" Deployment in Kubernetes
 
-https://github.com/pfcurtis/teleport-workload-example/kubernetes/spiffe-csi
-
+https://github.com/pfcurtis/teleport-workload-example/tree/main/kubernetes/spire-csi
 
 ### Single Machine Client and Server Example
 
