@@ -2,7 +2,7 @@
 
 ## Introduction
 
-In this repositiory, there are three examples of using Teleport to provide SPIFFE SVIDs to client applications. Each of them utilizes the **Workload API** (https://spiffe.io/docs/latest/spiffe-about/spiffe-concepts/#spiffe-workload-api) as a Unix domain socket. Teleport's `tbot` Machine ID bot provides the domain socket and is configured to provide a specific set (1 or more) SVIDs over that socket. This functionality is available in all edition of Teleport.
+In this repositiory, there are three examples of using Teleport to provide SPIFFE SVIDs to client applications. Each of them utilizes the **Workload API** (https://spiffe.io/docs/latest/spiffe-about/spiffe-concepts/#spiffe-workload-api) as a Unix domain socket. Teleport's `tbot` Machine ID bot provides the domain socket and is configured to provide a specific set (1 or more) SVIDs over that socket. This functionality is available in all editions of Teleport.
 
 All examples assume some basic knowledge of Teleport operations and tools (`tsh` and `tctl`). Getting started guides for Teleport are available in the Teleport documentation here: https://goteleport.com/docs/get-started/.
 
@@ -11,11 +11,11 @@ In order for the Teleport `tbot` to register with the Teleport cluster, an initi
 **WorkloadAPI** attestation with Teleport `tbot` is explained here: https://goteleport.com/docs/reference/workload-identity/workload-identity-api-and-workload-attestation/
 
 The example deployemnts are:
- - A standard application running on a machine (or VM). In this scenario, `tbot` is running on the same machine and providing the **WorkloadAPI** endpoint on the file system. These two Python (module: py-spiffe) are native SPIFFE applications, ie. the SPIFFE enablement is in the application code itself.
+ - A standard application running on a machine (or VM). In this scenario, `tbot` is running on the same machine and providing the **WorkloadAPI** endpoint on the file system. These two Python (module: py-spiffe) programs are native SPIFFE applications, ie. the SPIFFE enablement is in the application code itself.
  - A single Kubernetes pod deployment having `tbot` as a sidecar in the pod. This example uses **Envoy Proxy** as a sidecar proxy to handle the SPIFFE interactions. The application, in this case, **does not need to be altered.**
  - A "cluster wide" Kubernetes **WorkloadAPI** endpoint provided utilizing the **SPIFFE CSI Driver** (https://github.com/spiffe/spiffe-csi) to allow the **WorkloadAPI** endpoint to be mounted in more than one pod across the whole cluster. This example also uses the **Envoy Proxy** to handle the SPIFFE authorization.
 
-In all three examples, Teleport workload identities and roles are created. (SPIFFE Verifiable Identity Documents [SVIDs] explained: https://spiffe.io/docs/latest/deploying/svids/) The workload identity and roles can be used by all three examples. In the `workload-identity.yaml` file, you will see the create of two SVIDs (`/svc/server` and `/svc/client`). Additonally, the individual identities have a label (`example: workload-example`). It is these labels that are used to grant access to the SVIDs in the Teleport role that is created:
+In all three examples, Teleport workload identities and roles are created. (SPIFFE Verifiable Identity Documents [SVIDs] explained: https://spiffe.io/docs/latest/deploying/svids/) The same workload identity and roles are used by all three examples. In the `workload-identity.yaml` file, you will see the create of two SVIDs (`/svc/server` and `/svc/client`). Additonally, the individual identities have a label (`example: workload-example`). It is these labels that are used to grant access to the SVIDs in the Teleport role that is created:
 
 ```
 spec:
