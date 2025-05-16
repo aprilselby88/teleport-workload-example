@@ -7,7 +7,7 @@ This is a collection of manifests and `tctl` command files. You will need to hav
 
 ### Initialize Teleport environment
 
-`git clone pfcurtis/teleport-workload-example` (this repository)
+`git clone asteroid-earth/teleport-workload-example` (this repository)
 
 `cd teleport-worload-example-python`
 
