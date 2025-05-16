@@ -29,11 +29,11 @@ Each instance of `tbot` providing a **WorkloadAPI** can then be assigned a role 
 
 ### Single Pod & Sidecar Deployment in Kubernetes
 
-https://github.com/pfcurtis/teleport-workload-example/tree/main/kubernetes/single-pod
+https://github.com/asteroid-earth/teleport-workload-example/tree/main/kubernetes/single-pod
 
 ### WorkloadAPI "Cluster Wide" Deployment in Kubernetes
 
-https://github.com/pfcurtis/teleport-workload-example/tree/main/kubernetes/spire-csi
+https://github.com/asteroid-earth/teleport-workload-example/tree/main/kubernetes/spire-csi
 
 ### Single Machine Client and Server Example
 
@@ -44,7 +44,7 @@ This complete example can be run on a single machine, including your laptop. To 
 
 ### Initialize Teleport environment
 
-`git clone pfcurtis/teleport-workload-example` (this repository)
+`git clone asteroid-earth/teleport-workload-example` (this repository)
 
 `cd teleport-worload-example-python`
 
