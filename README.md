@@ -46,7 +46,7 @@ This complete example can be run on a single machine, including your laptop. To 
 
 `git clone asteroid-earth/teleport-workload-example` (this repository)
 
-`cd teleport-worload-example-python`
+`cd teleport-worload-example`
 
 Authenticate using `tsh`
 
@@ -66,6 +66,8 @@ Edit `config.yaml` with your proxy and the token from the above `bots add`
 ### Initialize Python environment
 
 `python3 -m venv env`
+
+`source env/bin/activate`
 
 `pip install -r requirements.txt`
 
