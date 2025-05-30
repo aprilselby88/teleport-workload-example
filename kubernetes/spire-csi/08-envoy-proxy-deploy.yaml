@@ -50,6 +50,7 @@ metadata:
   labels:
     app: teleport-app-envoy
 spec:
+  type: LoadBalancer
   ports:
   - name: envoy
     port: 8000

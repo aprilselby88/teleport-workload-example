@@ -10,8 +10,8 @@ logging.basicConfig(format="%(name)s[%(lineno)d] - %(message)s", stream=sys.stdo
 
 server_svid = "spiffe://paulc-demo.teleport.sh/svc/server"
 
-if len(sys.argv) == 2:
-    this_spiffe_id = sys.argv[1]
+if len(sys.argv) == 3:
+    this_spiffe_id = sys.argv[2]
 else:
     this_spiffe_id = "spiffe://paulc-demo.teleport.sh/svc/client"
 
@@ -32,7 +32,7 @@ x509_source = X509Source(svid_picker=client_svid)
 
 try:
     conn = dial(
-        "localhost:8000",
+        sys.argv[1] + ":8000",
         x509_source,
         authorize_fn=authorize_id(server_svid),
     )
