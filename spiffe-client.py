@@ -3,6 +3,7 @@ from spiffetls import dial
 from spiffe import SpiffeId, X509Source
 from spiffetls.tlsconfig.authorize import authorize_id
 import logging, sys
+from OpenSSL import SSL
 
 logger = logging.getLogger("spiffe-client")
 logger.setLevel(logging.DEBUG)
@@ -44,9 +45,15 @@ logger.info(f"Connecting with {x509_source.svid.spiffe_id}")
 
 try:
     conn.write(b"GET / HTTP/1.0\n\n")
-    data = conn.recv(1024)
-    logger.info(f"Received: {data.decode('utf-8')}")
+    while True:
+        try:
+            data = conn.recv(4096)
+            print(data.decode('utf-8'))
+        except SSL.SysCallError:
+            break
+        if not data:
+           break
     conn.close()
 except Exception as e:
-    logger.error(e)
+    logger.info(str(e))
 
