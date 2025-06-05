@@ -32,7 +32,7 @@ x509_source = X509Source(svid_picker=client_svid)
 
 try:
     conn = dial(
-        sys.argv[1] + ":8000",
+        sys.argv[1],
         x509_source,
         authorize_fn=authorize_id(server_svid),
     )
