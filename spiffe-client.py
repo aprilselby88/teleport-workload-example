@@ -10,11 +10,14 @@ logger.setLevel(logging.DEBUG)
 logging.basicConfig(format="%(name)s[%(lineno)d] - %(message)s", stream=sys.stdout)
 
 server_svid = "spiffe://paulc-demo.teleport.sh/svc/server"
+this_spiffe_id = "spiffe://paulc-demo.teleport.sh/svc/client"
+server_host = "paulc-demo.teleport.sh"
+
+if len(sys.argv) >= 2:
+    server_host = sys.argv[1]
 
 if len(sys.argv) == 3:
     this_spiffe_id = sys.argv[2]
-else:
-    this_spiffe_id = "spiffe://paulc-demo.teleport.sh/svc/client"
 
 """
 This function returns the SVID for this client. The WorkloadAPI (and tbot) can return more than one
@@ -33,7 +36,7 @@ x509_source = X509Source(svid_picker=client_svid)
 
 try:
     conn = dial(
-        sys.argv[1],
+        server_host,
         x509_source,
         authorize_fn=authorize_id(server_svid),
     )
