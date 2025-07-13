@@ -9,9 +9,9 @@ logger = logging.getLogger("spiffe-client")
 logger.setLevel(logging.DEBUG)
 logging.basicConfig(format="%(name)s[%(lineno)d] - %(message)s", stream=sys.stdout)
 
-server_svid = "spiffe://paulc-demo.teleport.sh/svc/server"
-this_spiffe_id = "spiffe://paulc-demo.teleport.sh/svc/client"
-server_host = "paulc-demo.teleport.sh"
+server_svid = "spiffe://april-amex-poc.teleport.sh/svc/server"
+this_spiffe_id = "spiffe://april-amex-poc.teleport.sh/svc/client"
+server_host = "localhost:8443"
 
 if len(sys.argv) >= 2:
     server_host = sys.argv[1]

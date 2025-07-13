@@ -1,5 +1,9 @@
 # Teleport Workload Identity Example Replaces SPIRE
 
+> [!NOTE]  
+> Do this first - https://goteleport.com/docs/get-started/
+> Including section about connecting from command line
+
 ## Introduction
 
 In this repository, there are three examples of using Teleport to provide SPIFFE SVIDs to client applications. Each of them utilizes the **Workload API** (https://spiffe.io/docs/latest/spiffe-about/spiffe-concepts/#spiffe-workload-api) as a Unix domain socket. Teleport's `tbot` Machine ID bot provides the domain socket and is configured to provide a specific set (1 or more) SVIDs over that socket. This functionality is available in all editions of Teleport.
@@ -50,6 +54,9 @@ This complete example can be run on a single machine, including your laptop. To 
 
 Authenticate using `tsh`
 
+> [!NOTE]  
+> tsh and tctl are included in teleport download
+
 `tctl bots rm example-bot`
 
 `tctl create -f workload-identity.yaml`
@@ -79,5 +86,4 @@ Then run the application of choice.
 * spiffe-server.py (server side)
 * spiffe-client.py (client side)
 * workload-client-api.py (lists all the SVIDs available from the current running "tbot")
-
 

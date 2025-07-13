@@ -10,11 +10,11 @@ logging.basicConfig(format="%(name)s[%(lineno)d] - %(message)s", stream=sys.stdo
 logger.setLevel(logging.INFO)
 
 # This SPIFFE ID (SVID)will be the server's ID. Clients will need to authorize this SVID for use.
-this_spiffe_id = "spiffe://paulc-trial.teleport.sh/svc/server"
+this_spiffe_id = "spiffe://april-amex-poc.teleport.sh/svc/server"
 
 # This is a list of authorized client IDs, ie. client IDs that are allowed to connect.
 valid_spiffe_ids = [
-    "spiffe://paulc-trial.teleport.sh/svc/client"
+    "spiffe://april-amex-poc.teleport.sh/svc/client"
 ]
 
 """
